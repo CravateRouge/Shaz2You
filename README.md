@@ -7,10 +7,13 @@ Imports shazam tags in a youtube playlist
 * [Beautiful Soup 4] (https://www.crummy.com/software/BeautifulSoup/#Download)
 
 ## Configuration:
-* Fill the [client_id and client_secret] (https://developers.google.com/youtube/registering_an_application#create_project) fields.
+* Download and rename the[client_secret_*.json] (https://developers.google.com/youtube/registering_an_application#create_project) in client_secret.json and
+move it in the shaz2you.py directory.
 
 ## Steps:
 * Go to https://www.shazam.com/myshazam and scroll onto the last tag you want and save the page.
-* Launch the app
+* Launch the app (in a terminal python shaz2you.py)
+* When the app is launched go to the link and copy paste the code in the terminal
+* Copy paste the ID of your playlist (https://www.youtube.com/playlist?list=<your id>) in the terminal
 
 *Enjoy :)*
