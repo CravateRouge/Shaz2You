@@ -2,6 +2,33 @@ from requests_oauthlib import OAuth2Session
 from bs4 import BeautifulSoup
 import json, re
 
+# The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
+# the OAuth 2.0 information for this application, including its client_id and
+# client_secret. You can acquire an OAuth 2.0 client ID and client secret from
+# the Google API Console at
+# https://console.developers.google.com/.
+# Please ensure that you have enabled the YouTube Data API for your project.
+# For more information about using OAuth2 to access the YouTube Data API, see:
+#   https://developers.google.com/youtube/v3/guides/authentication
+# For more information about the client_secrets.json file format, see:
+#   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
+CLIENT_SECRETS_FILE = "client_secret.json"
+
+# This variable defines a message to display if the CLIENT_SECRETS_FILE is
+# missing.
+MISSING_CLIENT_SECRETS_MESSAGE = """
+WARNING: Please configure OAuth 2.0
+
+To make this sample run you will need to populate the client_secrets.json file
+found in the same directory as this script 
+
+with information from the API Console
+https://console.developers.google.com/
+
+For more information about the client_secrets.json file format, please visit:
+https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
+"""
+
 #Lists all the tags like they must be for searching
 def listify(webPage):
 	soup = BeautifulSoup(open('My Shazam - Shazam.htm'), 'html.parser')
@@ -22,12 +49,15 @@ def  searchFormatting(terme):
 	newTerme = re.sub(r'\+$','', newTerme)
 	return re.sub(r'^\+','', newTerme)
 
-def authYoutube():
-	client_id = r'put your client_id here'
-	client_secret = r'put your client secret here'
-	redirect_uri = r'urn:ietf:wg:oauth:2.0:oob'
-	authorization_base_url = r'https://accounts.google.com/o/oauth2/auth'
-	token_url = r'https://accounts.google.com/o/oauth2/token'
+
+def authYoutube(config_auth):
+	
+	config_auth = config_auth['installed']
+	client_id = config_auth['client_id']
+	client_secret = config_auth['client_secret']
+	redirect_uri = config_auth['redirect_uris'][0]
+	authorization_base_url = config_auth['auth_uri']
+	token_url = config_auth['token_uri']
 	scope = [r'https://www.googleapis.com/auth/youtube']
 
 	oauth = OAuth2Session(client_id, redirect_uri=redirect_uri,
@@ -105,9 +135,12 @@ def retrievePlaylistVideos(PLAYLIST_ID, oauth, nextPage=None):
 def printLog(videoName,search_status=None,insertion_status=None):
 	return {'search_status':search_status, 'insertion_status':insertion_status,'video_name':videoName}
 
+#Gets the config for authentification
+with open(CLIENT_SECRETS_FILE) as fp:
+	config_auth = json.load(fp)
 #Gets tags and adds them to a playlist
 with open('My Shazam - Shazam.htm') as wp:
-	failedInserts = add2Playlist(listify(wp), authYoutube())
+	failedInserts = add2Playlist(listify(wp), authYoutube(config_auth))
 
 #Adds non paylisted videos to log
 if(len(failedInserts)>0):
